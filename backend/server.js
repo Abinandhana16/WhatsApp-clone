@@ -49,12 +49,17 @@ io.on('connection', (socket) => {
   });
 
   // ✅ SEND MESSAGE
-  socket.on('sendMessage', async (data) => {
+  socket.on('sendMessage', async (data, callback) => {
     const newMessage = new Message(data);
     await newMessage.save();
 
     // Emit to receiver's room (targeted)
     io.to(data.receiverId).emit('receiveMessage', newMessage);
+    
+    // Ack back to sender
+    if (typeof callback === 'function') {
+      callback(newMessage);
+    }
   });
 
   const saveCallMessage = async ({ senderId, receiverId, type, status, duration }) => {

@@ -137,6 +137,7 @@ router.post('/delete-bulk', auth, async (req, res) => {
     for (const id of messageIds) {
       const message = await Message.findById(id);
       if (!message) continue;
+      if (message.type === 'call') continue; // Prevent deleting call logs
 
       if (type === 'everyone') {
         if (String(message.senderId) === String(userId)) {

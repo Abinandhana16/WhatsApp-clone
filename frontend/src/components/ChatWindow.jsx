@@ -253,7 +253,9 @@ const ChatWindow = ({ selectedContact, contacts = [], clearChat, setSelectedCont
       return;
     }
 
+    const tempId = Date.now().toString() + Math.random().toString();
     const messageData = {
+      _tempId: tempId,
       senderId: user.id,
       receiverId: selectedContact._id,
       content: type === 'voice' ? (content || '') : content,
@@ -266,7 +268,9 @@ const ChatWindow = ({ selectedContact, contacts = [], clearChat, setSelectedCont
       createdAt: new Date()
     };
 
-    socket.emit('sendMessage', messageData);
+    socket.emit('sendMessage', messageData, (savedMessage) => {
+      setMessages(prev => prev.map(m => m._tempId === tempId ? savedMessage : m));
+    });
     if (type === 'text') {
       socket.emit('stopTyping', { senderId: String(user.id), receiverId: String(selectedContact._id) });
       if (window.typingTimeout) clearTimeout(window.typingTimeout);
@@ -559,6 +563,12 @@ const ChatWindow = ({ selectedContact, contacts = [], clearChat, setSelectedCont
   };
 
   const toggleSelection = (id) => {
+    if (!id) return;
+    const message = messages.find(m => m._id === id || m._tempId === id);
+    if (message?.type === 'call') {
+      showToast('Call logs cannot be deleted.');
+      return;
+    }
     setSelectedIds(prev => {
       const newSet = new Set(prev);
       if (newSet.has(id)) newSet.delete(id);
@@ -716,7 +726,7 @@ const ChatWindow = ({ selectedContact, contacts = [], clearChat, setSelectedCont
         setShowDeleteModal(true);
       }
     }
-  ] : [];
+  ].filter(opt => !(opt.label === 'Delete' && contextMenu.message.type === 'call')) : [];
 
   const bgMenuOptions = [
     { 
@@ -752,7 +762,7 @@ const ChatWindow = ({ selectedContact, contacts = [], clearChat, setSelectedCont
     >
       {/* Header */}
       {isSelectionMode ? (
-        <div className="h-[60px] bg-wa-header-bg dark:bg-[#111b21] flex items-center justify-between px-6 shrink-0 z-10 border-b dark:border-white/5 shadow-md animate-fade-in">
+        <div className="h-[60px] bg-wa-header-bg dark:bg-[#111b21] flex items-center justify-between px-6 shrink-0 relative z-20 border-b dark:border-white/5 shadow-md animate-fade-in">
            <div className="flex items-center gap-6">
               <X 
                 size={24} 
@@ -771,7 +781,7 @@ const ChatWindow = ({ selectedContact, contacts = [], clearChat, setSelectedCont
            </div>
         </div>
       ) : (
-        <div className="h-[60px] bg-wa-header-bg dark:bg-wa-header-dark flex items-center justify-between px-4 shrink-0 z-10 border-b dark:border-wa-border-dark shadow-sm">
+        <div className="h-[60px] bg-wa-header-bg dark:bg-wa-header-dark flex items-center justify-between px-4 shrink-0 relative z-20 border-b dark:border-wa-border-dark shadow-sm">
           <div className="flex items-center gap-3">
             <img src={selectedContact.avatar} className="w-10 h-10 rounded-full border border-gray-100 dark:border-wa-border-dark" alt="Contact Avatar" />
             <div className="flex flex-col">

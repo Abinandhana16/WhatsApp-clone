@@ -15,16 +15,33 @@ const Home = () => {
   const [mutedContacts, setMutedContacts] = useState([]);
 
   const toggleBlockContact = (contactId) => {
-    setBlockedContacts(prev => 
-      prev.includes(contactId) ? prev.filter(id => id !== contactId) : [...prev, contactId]
-    );
+    setBlockedContacts(prev => {
+      const newBlocked = prev.includes(contactId) ? prev.filter(id => id !== contactId) : [...prev, contactId];
+      if (user?.id) localStorage.setItem(`blocked_${user.id}`, JSON.stringify(newBlocked));
+      return newBlocked;
+    });
   };
 
   const toggleMuteContact = (contactId) => {
-    setMutedContacts(prev => 
-      prev.includes(contactId) ? prev.filter(id => id !== contactId) : [...prev, contactId]
-    );
+    setMutedContacts(prev => {
+      const newMuted = prev.includes(contactId) ? prev.filter(id => id !== contactId) : [...prev, contactId];
+      if (user?.id) localStorage.setItem(`muted_${user.id}`, JSON.stringify(newMuted));
+      return newMuted;
+    });
   };
+
+  useEffect(() => {
+    if (user?.id) {
+      try {
+        const storedBlocked = JSON.parse(localStorage.getItem(`blocked_${user.id}`) || '[]');
+        if (Array.isArray(storedBlocked)) setBlockedContacts(storedBlocked);
+        const storedMuted = JSON.parse(localStorage.getItem(`muted_${user.id}`) || '[]');
+        if (Array.isArray(storedMuted)) setMutedContacts(storedMuted);
+      } catch(e) {
+        console.error('Error loading preferences', e);
+      }
+    }
+  }, [user?.id]);
 
   useEffect(() => {
     const fetchContacts = async () => {
