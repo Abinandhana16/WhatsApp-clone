@@ -1,0 +1,16 @@
+{
+  "name": "whatsapp-clone",
+  "version": "1.0.0",
+  "description": "A professional WhatsApp Web clone built with the MERN stack and real-time communication using Socket.io. This application features advanced AI capabilities like Voice-to-Text and Text-to-Speech, along with contextual Smart Replies.",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm --prefix backend run dev\" \"npm --prefix frontend run dev\"",
+    "install-all": "npm install && npm --prefix backend install && npm --prefix frontend install"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}
