@@ -1,0 +1,116 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --wa-green: #25D366;
+  --wa-teal: #128C7E;
+  --wa-dark-teal: #075E54;
+  --wa-light-green: #DCF8C6;
+  --wa-blue: #34B7F1;
+  --wa-bg-light: #f0f2f5;
+  --wa-sidebar-bg: #ffffff;
+  --wa-header-bg: #f0f2f5;
+  --wa-panel-bg: #f0f2f5;
+  --wa-bubble-me: #dcf8c6;
+  --wa-bubble-other: #ffffff;
+}
+
+[data-theme='dark'] {
+  --wa-bg-light: #0b141a;
+  --wa-sidebar-bg: #111b21;
+  --wa-header-bg: #202d33;
+  --wa-panel-bg: #0b141a;
+  --wa-bubble-me: #005c4b;
+  --wa-bubble-other: #202d33;
+  --wa-text-primary: #e9edef;
+  --wa-text-secondary: #8696a0;
+  --wa-border: #222d34;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: var(--wa-bg-light);
+  color: #111b21;
+  -webkit-font-smoothing: antialiased;
+}
+
+[data-theme='dark'] body {
+  color: var(--wa-text-primary);
+}
+
+.whatsapp-chat-bg {
+  background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png');
+  background-repeat: repeat;
+  background-color: #efeae2;
+  background-blend-mode: overlay;
+  opacity: 0.06;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+[data-theme='dark'] .whatsapp-chat-bg {
+  background-color: #0b141a;
+  opacity: 0.4;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+}
+
+[data-theme='dark'] ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Glassmorphism Classes */
+.glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+[data-theme='dark'] .glass {
+  background: rgba(17, 27, 33, 0.7);
+}
+
+/* Tail-style Bubbles */
+.bubble-tail-me::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: -8px;
+  width: 0;
+  height: 0;
+  border: 8px solid transparent;
+  border-top-color: var(--wa-bubble-me);
+  border-left-color: var(--wa-bubble-me);
+}
+
+.bubble-tail-other::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -8px;
+  width: 0;
+  height: 0;
+  border: 8px solid transparent;
+  border-top-color: var(--wa-bubble-other);
+  border-right-color: var(--wa-bubble-other);
+}
