@@ -213,9 +213,6 @@ This WhatsApp Clone is a comprehensive demonstration of building a production-gr
 - **Thoughtful UX details** like read receipts, typing indicators, unread badges, soft/hard message deletion, and per-user theme and wallpaper persistence.
 - **Scalable data modeling** with Mongoose schemas designed to support multiple message types, soft deletes, and efficient aggregation for unread counts and conversation previews.
 
-Whether you're using this as a learning resource, a portfolio project, or a foundation to build upon — the codebase is structured to be readable, modular, and easy to extend. Future enhancements could include group chats, push notifications, end-to-end encryption, cloud media storage (e.g. AWS S3), or a React Native mobile client.
-
-Contributions, issues, and feature requests are welcome. If this project helped you, consider giving it a ⭐ on GitHub!
 
 ---
 
