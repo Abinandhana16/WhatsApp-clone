@@ -203,6 +203,29 @@ The app will be available at **http://localhost:5173**
 
 ---
 
+🗄️ Database Setup
+This project uses MongoDB as the database. You can run it either locally or via MongoDB Atlas (cloud).
+
+Option 1 — Local MongoDB
+Step 1: Download and install MongoDB Community Edition from mongodb.com/try/download/community
+Step 2: Start the MongoDB service:
+bash
+# macOS / Linux
+mongod --dbpath /data/db
+# Windows (run as Administrator)
+net start MongoDB
+Step 3: Set your MONGODB_URI in .env:
+envMONGODB_URI=mongodb://127.0.0.1:27017/whatsapp-clone
+MongoDB will automatically create the whatsapp-clone database when the app first connects.
+
+Option 2 — Connecting via MongoDB Compass (GUI)
+MongoDB Compass is the official GUI tool for MongoDB that lets you visually browse your collections, documents, and run queries — without needing the terminal.
+Step 1: Download and install MongoDB Compass from mongodb.com/products/compass
+Step 2: Open Compass and paste your connection string in the "New Connection" field:
+mongodb://127.0.0.1:27017/whatsapp-clone
+
+---
+
 ## 🏁 Conclusion
 
 This WhatsApp Clone is a comprehensive demonstration of building a production-grade, real-time full-stack application from scratch. It goes beyond a simple chat app — covering the full spectrum of modern web development challenges:
