@@ -916,8 +916,8 @@ const ChatWindow = ({ selectedContact, contacts = [], clearChat, setSelectedCont
 
       {/* Message Area */}
       <div 
-        className={`flex-1 overflow-y-auto p-4 custom-scrollbar relative ${!chatWallpaper ? 'bg-wa-bg-light dark:bg-wa-bg-dark/20' : ''}`}
-        style={chatWallpaper ? { backgroundColor: chatWallpaper } : {}}
+        className={`flex-1 overflow-y-auto p-4 custom-scrollbar relative ${(!chatWallpaper || theme === 'dark') ? 'bg-[#efeae2] dark:bg-wa-bg-dark' : ''}`}
+        style={(chatWallpaper && theme !== 'dark') ? { backgroundColor: chatWallpaper } : {}}
       >
         <div className="opacity-10 absolute inset-0 whatsapp-chat-bg pointer-events-none z-[-1]"></div>
         {renderMessageWithDividers()}
