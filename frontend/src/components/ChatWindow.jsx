@@ -299,8 +299,10 @@ const ChatWindow = ({ selectedContact, contacts = [], clearChat, setSelectedCont
   };
 
   const handleSendPreview = () => {
-    if (!previewImage) return;
-    handleSendMessage(null, '', 'image', null, previewImage, `pasted-image-${Date.now()}.png`, previewFile?.type);
+    if (!previewImage && !previewFile) return;
+    const type = previewFile?.type?.startsWith('image/') ? 'image' : (previewImage?.startsWith('data:image/') ? 'image' : 'file');
+    const fileName = previewFile?.name || `pasted-image-${Date.now()}.png`;
+    handleSendMessage(null, '', type, null, previewImage, fileName, previewFile?.type);
     setPreviewImage(null);
     setPreviewFile(null);
   };
@@ -383,27 +385,34 @@ const ChatWindow = ({ selectedContact, contacts = [], clearChat, setSelectedCont
   };
 
   const renderMessageWithDividers = () => {
-    let lastDate = null;
     const filteredMessages = messages.filter(m =>
       (!searchQuery || (m.content && m.content.toLowerCase().includes(searchQuery.toLowerCase()))) &&
       !(m.deletedFor || []).includes(user.id)
     );
 
-    return filteredMessages.map((msg, index) => {
+    const groupedMessages = [];
+    filteredMessages.forEach(msg => {
       const msgDate = new Date(msg.createdAt).toDateString();
-      const showDivider = msgDate !== lastDate;
-      lastDate = msgDate;
+      if (groupedMessages.length === 0 || groupedMessages[groupedMessages.length - 1].date !== msgDate) {
+        groupedMessages.push({
+          date: msgDate,
+          displayDate: formatMessageDate(msg.createdAt),
+          messages: [msg]
+        });
+      } else {
+        groupedMessages[groupedMessages.length - 1].messages.push(msg);
+      }
+    });
 
-      return (
-        <React.Fragment key={index}>
-          {showDivider && (
-            <div className="flex justify-center my-6 sticky top-2 z-10 pointer-events-none">
-              <span className="bg-white/90 dark:bg-wa-header-dark/90 text-gray-500 dark:text-wa-text-primary-dark text-[11px] font-bold px-3 py-1.5 rounded-lg shadow-sm border border-gray-100 dark:border-wa-border-dark backdrop-blur-sm tracking-widest">
-                {formatMessageDate(msg.createdAt)}
-              </span>
-            </div>
-          )}
-          <div className="flex flex-col mb-2">
+    return groupedMessages.map((group, groupIndex) => (
+      <div key={groupIndex} className="relative pb-2">
+        <div className="flex justify-center my-4 sticky top-2 z-10 pointer-events-none">
+          <span className="bg-white/90 dark:bg-wa-header-dark/90 text-gray-500 dark:text-wa-text-primary-dark text-[11px] font-bold px-3 py-1.5 rounded-lg shadow-sm border border-gray-100 dark:border-wa-border-dark backdrop-blur-sm tracking-widest">
+            {group.displayDate}
+          </span>
+        </div>
+        {group.messages.map((msg, index) => (
+          <div className="flex flex-col mb-2" key={index}>
             <div className="flex items-center gap-2 w-full px-2">
               {isSelectionMode && (
                 <div 
@@ -514,9 +523,9 @@ const ChatWindow = ({ selectedContact, contacts = [], clearChat, setSelectedCont
               </div>
             </div>
           </div>
-        </React.Fragment>
-      );
-    });
+        ))}
+      </div>
+    ));
   };
 
   const handleEmojiClick = (emojiData) => {
@@ -883,23 +892,33 @@ const ChatWindow = ({ selectedContact, contacts = [], clearChat, setSelectedCont
         </div>
       )}
 
-      {/* Image Preview Overlay */}
+      {/* Image/File Preview Overlay */}
       {previewImage && (
         <div className="absolute inset-0 z-[60] bg-black/90 flex flex-col backdrop-blur-md animate-fade-in">
           <div className="h-[60px] flex items-center justify-between px-6 text-white bg-black/20 shrink-0">
              <div className="flex items-center gap-4">
-                <button onClick={() => setPreviewImage(null)} className="p-2 hover:bg-white/10 rounded-full transition-all">
+                <button onClick={() => { setPreviewImage(null); setPreviewFile(null); }} className="p-2 hover:bg-white/10 rounded-full transition-all">
                    <X size={24} />
                 </button>
-                <span className="font-semibold tracking-wide text-lg uppercase">Send Image</span>
+                <span className="font-semibold tracking-wide text-lg uppercase">Send {previewFile?.type?.startsWith('image/') || previewImage?.startsWith('data:image/') ? 'Image' : 'File'}</span>
              </div>
           </div>
           <div className="flex-1 flex items-center justify-center p-8 overflow-hidden">
-             <img src={previewImage} alt="Preview" className="max-w-full max-h-full object-contain rounded-lg shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/10 animate-scale-up" />
+             {previewFile?.type?.startsWith('image/') || previewImage?.startsWith('data:image/') ? (
+                 <img src={previewImage} alt="Preview" className="max-w-full max-h-full object-contain rounded-lg shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/10 animate-scale-up" />
+             ) : (
+                 <div className="flex flex-col items-center justify-center p-12 bg-white/5 rounded-xl border border-white/10 shadow-2xl">
+                     <FileIcon size={80} className="text-wa-teal mb-6 animate-pulse" />
+                     <span className="text-white font-bold text-xl tracking-wide">{previewFile?.name || 'File'}</span>
+                     {previewFile?.size && (
+                       <span className="text-white/50 font-medium mt-3 text-sm">{(previewFile.size / 1024 / 1024).toFixed(2)} MB</span>
+                     )}
+                 </div>
+             )}
           </div>
           <div className="p-8 flex justify-center items-center gap-6 bg-black/20 shrink-0">
              <button
-               onClick={() => setPreviewImage(null)}
+               onClick={() => { setPreviewImage(null); setPreviewFile(null); }}
                className="px-8 py-3 rounded-full text-white font-bold hover:bg-white/10 transition-all border border-white/20 uppercase tracking-widest text-xs"
              >
                Cancel
@@ -968,10 +987,11 @@ const ChatWindow = ({ selectedContact, contacts = [], clearChat, setSelectedCont
             if (!file) return;
             const reader = new FileReader();
             reader.onloadend = () => {
-              const type = file.type.startsWith('image/') ? 'image' : 'file';
-              handleSendMessage(null, '', type, null, reader.result, file.name, file.type);
+              setPreviewImage(reader.result);
+              setPreviewFile(file);
             };
             reader.readAsDataURL(file);
+            e.target.value = null; // reset input
           }} />
 
           {isRecording ? (
