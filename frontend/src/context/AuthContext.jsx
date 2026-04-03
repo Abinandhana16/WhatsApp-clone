@@ -9,6 +9,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
+  const [chatWallpaper, setChatWallpaper] = useState(localStorage.getItem('chat-wallpaper') || null);
 
   useEffect(() => {
     const token = localStorage.getItem('chat-token');
@@ -18,7 +19,10 @@ export const AuthProvider = ({ children }) => {
     }
     const savedWallpaper = localStorage.getItem('chat-wallpaper');
     if (savedWallpaper) {
+      setChatWallpaper(savedWallpaper);
       document.documentElement.style.setProperty('--chat-wallpaper', savedWallpaper);
+    } else {
+      document.documentElement.style.removeProperty('--chat-wallpaper');
     }
     setLoading(false);
   }, []);
@@ -36,6 +40,17 @@ export const AuthProvider = ({ children }) => {
 
   const toggleTheme = () => {
     setTheme(prev => prev === 'light' ? 'dark' : 'light');
+  };
+
+  const updateChatWallpaper = (color) => {
+    if (!color) {
+      localStorage.removeItem('chat-wallpaper');
+      document.documentElement.style.removeProperty('--chat-wallpaper');
+    } else {
+      localStorage.setItem('chat-wallpaper', color);
+      document.documentElement.style.setProperty('--chat-wallpaper', color);
+    }
+    setChatWallpaper(color);
   };
 
   const login = async (email, password) => {
@@ -76,7 +91,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, loading, theme, toggleTheme, updateUser }}>
+    <AuthContext.Provider value={{ user, login, register, logout, loading, theme, toggleTheme, updateUser, chatWallpaper, updateChatWallpaper }}>
       {children}
     </AuthContext.Provider>
   );

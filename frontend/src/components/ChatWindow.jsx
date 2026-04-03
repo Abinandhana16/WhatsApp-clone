@@ -11,7 +11,7 @@ import ContextMenu from './ContextMenu';
 import DeleteModal from './DeleteModal';
 
 const ChatWindow = ({ selectedContact, contacts = [], clearChat, setSelectedContact, blockedContacts = [], mutedContacts = [], toggleBlockContact, toggleMuteContact }) => {
-  const { user, theme } = useAuth();
+  const { user, theme, chatWallpaper } = useAuth();
   const { socket, onlineUsers, typingUsers, recordingUsers, setUnreadCounts } = useSocket();
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
@@ -167,6 +167,7 @@ const ChatWindow = ({ selectedContact, contacts = [], clearChat, setSelectedCont
       };
 
       const callResponseHandler = ({ accepted, from }) => {
+        if (callTimeoutRef.current) clearTimeout(callTimeoutRef.current);
         if (accepted) {
           setCallState('active');
           startCallTimer();
@@ -746,7 +747,7 @@ const ChatWindow = ({ selectedContact, contacts = [], clearChat, setSelectedCont
   ].filter(opt => opt.label !== 'Paste' || copiedContent);
 
   if (!selectedContact) return (
-    <div className="flex-1 flex flex-col items-center justify-center bg-wa-bg-light dark:bg-wa-bg-dark border-b-8 border-wa-green transition-all overflow-hidden relative">
+    <div className="flex-1 flex flex-col items-center justify-center bg-wa-bg-light dark:bg-wa-bg-dark transition-all overflow-hidden relative">
       <div className="opacity-10 absolute inset-0 whatsapp-chat-bg-layer pointer-events-none"></div>
       <h1 className="text-4xl font-light text-gray-300 dark:text-wa-text-primary-dark mb-4 z-10 transition-all duration-1000 animate-fade-in">WhatsApp Pro</h1>
       <p className="text-gray-400 dark:text-wa-text-secondary-dark text-sm z-10 tracking-wide font-medium flex items-center gap-2">
@@ -915,8 +916,8 @@ const ChatWindow = ({ selectedContact, contacts = [], clearChat, setSelectedCont
 
       {/* Message Area */}
       <div 
-        className="flex-1 overflow-y-auto p-4 custom-scrollbar bg-slate-50 dark:bg-wa-bg-dark/20 relative"
-        style={{ backgroundColor: 'var(--chat-wallpaper, var(--wa-bg-light))' }}
+        className={`flex-1 overflow-y-auto p-4 custom-scrollbar relative ${!chatWallpaper ? 'bg-wa-bg-light dark:bg-wa-bg-dark/20' : ''}`}
+        style={chatWallpaper ? { backgroundColor: chatWallpaper } : {}}
       >
         <div className="opacity-10 absolute inset-0 whatsapp-chat-bg pointer-events-none z-[-1]"></div>
         {renderMessageWithDividers()}

@@ -7,7 +7,7 @@ import useUnreadCount from '../hooks/useUnreadCount';
 import UnreadBadge from './UnreadBadge';
 
 const Sidebar = ({ contacts, lastMessages, selectedContact, setSelectedContact, clearChat, mutedContacts = [] }) => {
-  const { user, logout, theme, toggleTheme } = useAuth();
+  const { user, logout, theme, toggleTheme, chatWallpaper, updateChatWallpaper } = useAuth();
   const { onlineUsers, typingUsers, recordingUsers } = useSocket();
   const { unreadCounts, markAsRead } = useUnreadCount();
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
@@ -321,17 +321,19 @@ const Sidebar = ({ contacts, lastMessages, selectedContact, setSelectedContact, 
             {/* Wallpaper Palette */}
             <div className="px-6 py-6">
                <label className="text-[14px] text-wa-teal font-medium block mb-4">Chat Wallpaper</label>
+               <button 
+                 className={`w-full mb-4 px-4 py-2.5 rounded-lg border text-[13.5px] font-medium transition-all ${!chatWallpaper ? 'bg-wa-teal text-white border-wa-teal shadow-md' : 'border-gray-200 dark:border-white/10 dark:text-wa-text-primary-dark hover:bg-gray-50 dark:hover:bg-white/5'}`}
+                 onClick={() => updateChatWallpaper(null)}
+               >
+                 Default Theme Wallpaper
+               </button>
                <div className="grid grid-cols-5 gap-3 shrink-0">
                   {['#efeae2', '#f3f3f3', '#d9dbd5', '#72b693', '#ffbcaf', '#b3bfc4', '#c9e265', '#e9d6d1', '#7be5df', '#f0f0f0'].map((color) => (
                     <div 
                       key={color} 
-                      className={`h-12 w-12 rounded-lg cursor-pointer hover:scale-110 transition-all border border-gray-200 dark:border-white/10 shadow-sm ${localStorage.getItem('chat-wallpaper') === color ? 'ring-2 ring-wa-teal ring-offset-2 dark:ring-offset-wa-header-dark' : ''}`}
+                      className={`h-12 w-12 rounded-lg cursor-pointer hover:scale-110 transition-all border border-gray-200 dark:border-white/10 shadow-sm ${chatWallpaper === color ? 'ring-2 ring-wa-teal ring-offset-2 dark:ring-offset-wa-header-dark' : ''}`}
                       style={{ backgroundColor: color }}
-                      onClick={() => {
-                        localStorage.setItem('chat-wallpaper', color);
-                        document.documentElement.style.setProperty('--chat-wallpaper', color);
-                        setSettingSubView('chats'); // Re-render logic
-                      }}
+                      onClick={() => updateChatWallpaper(color)}
                     />
                   ))}
                </div>
